@@ -1,0 +1,35 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "O valor do dólar hoje pode variar dependendo da fonte que você consulta e do tipo de dólar que você está procurando (comercial, turismo, etc.).\n\nPara obter a cotação mais atualizada, sugiro que você consulte:\n\n*   **Google:** Basta pesquisar por \"cotação dólar hoje\" no Google.\n*   **Sites de notícias financeiras:** Exemplo: Valor Econômico, InfoMoney, etc.\n*   **Bancos e corretoras de câmbio:** Eles geralmente exibem a cotação do dólar em tempo real.\n\nLembre-se que a cotação muda constantemente ao longo do dia."
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "avgLogprobs": -0.11032169048602765
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 7,
+    "candidatesTokenCount": 130,
+    "totalTokenCount": 137,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 7
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 130
+      }
+    ]
+  },
+  "modelVersion": "gemini-2.0-flash",
+  "responseId": "NL-baOnACfKcnvgPraXxwQ4"
+}
