@@ -12,8 +12,19 @@ export const generateText = async (prompt: string) =>
         contents: prompt,
     });
 
-export const chat = async (prompt: any) => 
+export const chat = async (prompt: string) => 
     ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: prompt,
+        contents: [
+            {
+                role: "user",
+                parts: [{ text: prompt }]
+            }
+        ],
+        config: {
+            responseMimeType: "application/json",
+            systemInstruction:
+                "Você é uma profissional da tecnologia. Qualquer pergunta que não seja de tecnologia você não deve responder"
+        }
     });
+
