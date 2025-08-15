@@ -1,5 +1,7 @@
 import { geminiInternal } from "../adapters/gemini";
 import { chat } from "./gemini";
+import dotenv from "dotenv";
+dotenv.config();
 
 const context: any[] = [];
 
@@ -14,7 +16,6 @@ export const ai = async (prompt: string) => {
   };
 
   context.push(input);
-
 
   const data = await chat(prompt);
 
