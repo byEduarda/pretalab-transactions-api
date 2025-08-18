@@ -1,4 +1,4 @@
-import { transactionById } from "../../src/service/transactions"; 
+import { transactionById } from "../../src/services/transactions"; 
 import { Transaction } from "../../src/data"; 
 describe("Testes Unitários — Transações", () => {
   it("deve retornar a transação correta pelo ID", async () => {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { transactionById } from "../service/transactions";
+import { transactionById } from "../services/transactions";
 
 export const getTransactionById = (req: Request, res: Response) => {
   const transaction = transactionById(req.params.id);

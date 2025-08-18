@@ -2,7 +2,7 @@ import express from "express";
 import { transactions } from "./data";
 import { getTransactionById } from "./controller/transaction";
 import { aiResponse } from "./controller/ai";
-import { ai } from "./service/prompt";
+import { ai } from "./services/prompt";
 import dotenv from "dotenv";
 dotenv.config();
 
