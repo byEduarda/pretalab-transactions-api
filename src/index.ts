@@ -6,7 +6,6 @@ import { ai } from "./services/prompt";
 import dotenv from "dotenv";
 dotenv.config();
 
-const PORT = parseInt(process.env.PORT || "3000", 10);
 const app = express();
 app.use(express.json());
 
@@ -28,10 +27,4 @@ app.post("/chat", async (req, res) => {
   res.json({ resposta });
 });
 
-
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});    
-
 export default app;
-  
