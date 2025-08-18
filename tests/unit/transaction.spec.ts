@@ -23,7 +23,7 @@ describe("Testes Unitários — Transações", () => {
 
   it("deve retornar null se a transação não for encontrada", async () => {
     jest
-      .spyOn(require("../../src/services/transactionService"), "transactionById")
+      .spyOn(require("../../src/services/transactions"), "transactionById")
       .mockResolvedValueOnce(null);
 
     const resultado = await transactionById("999");
