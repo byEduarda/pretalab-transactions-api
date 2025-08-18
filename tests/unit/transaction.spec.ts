@@ -13,7 +13,7 @@ describe("Testes Unitários — Transações", () => {
     };
 
     jest
-      .spyOn(require("../../src/services/transactionService"), "transactionById")
+      .spyOn(require("../../src/services/transactions"), "transactionById")
       .mockResolvedValueOnce(transacaoFalsa);
 
     const resultado = await transactionById(idFalso);
