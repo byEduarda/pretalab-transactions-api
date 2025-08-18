@@ -4,14 +4,14 @@ import { transactions } from "../../src/data";
 
 describe("Testes de Integração — Transações", () => {
   it("deve retornar 200 e a transação ao buscar por ID existente", async () => {
-    const transacaoExistente = transactions[0];
+    const transacaoExistente = transactions[0]; 
 
     const resposta = await request(app).get(`/transactions/${transacaoExistente.id}`);
 
     expect(resposta.status).toBe(200);
-    expect(resposta.body.id).toBe(transacaoExistente.id);
-    expect(resposta.body.amount).toBe(transacaoExistente.amount);
-    expect(resposta.body.type).toBe(transacaoExistente.type);
+    expect(resposta.body.transaction.id).toBe(transacaoExistente.id);
+    expect(resposta.body.transaction.amount).toBe(transacaoExistente.amount);
+    expect(resposta.body.transaction.type).toBe(transacaoExistente.type);
   });
 
   it("deve retornar 404 ao buscar transação inexistente", async () => {
