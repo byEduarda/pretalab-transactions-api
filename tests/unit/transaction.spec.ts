@@ -1,33 +1,27 @@
-import { transactionById } from "../../src/services/transactions"; 
-import { Transaction } from "../../src/models/data"; 
-describe("Testes Unitários — Transações", () => {
-  it("deve retornar a transação correta pelo ID", async () => {
-    const idFalso = "123";
-    const transacaoFalsa: Transaction = {
-      id: idFalso,
-      date: "2024-08-18T10:00:00Z",
-      description: "Teste de mock",
-      amount: 500,
-      type: "income",
-      category: "Teste",
-    };
+import { getAllTransactions, getTransactionById, createTransaction } from "../../src/services/transactionService";
+import { transactions } from "../../src/models/transactionModel";
 
-    jest
-      .spyOn(require("../../src/services/transactions"), "transactionById")
-      .mockResolvedValueOnce(transacaoFalsa);
-
-    const resultado = await transactionById(idFalso);
-
-    expect(resultado).toEqual(transacaoFalsa);
+describe("Unit: Transactions", () => {
+  it("deve retornar todas as transações", () => {
+    const result = getAllTransactions();
+    expect(result).toMatchObject(transactions);
   });
 
-  it("deve retornar null se a transação não for encontrada", async () => {
-    jest
-      .spyOn(require("../../src/services/transactions"), "transactionById")
-      .mockResolvedValueOnce(null);
+  it("deve retornar transação específica pelo id", () => {
+    const transaction = getTransactionById("1");
+    expect(transaction).toMatchObject({ id: "1", description: "Salário de Julho" });
+  });
 
-    const resultado = await transactionById("999");
-
-    expect(resultado).toBeNull();
+  it("deve criar uma nova transação", () => {
+    const newTransaction = {
+      id: "999",
+      description: "Teste",
+      amount: 100,
+      type: "income" as const,
+      category: "Teste",
+      date: new Date().toISOString(),
+    };
+    const result = createTransaction(newTransaction);
+    expect(result).toMatchObject(newTransaction);
   });
 });
