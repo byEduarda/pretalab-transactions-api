@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../../src/app";
+import app from "../../src";
 import { transactions } from "../../src/models/data";
 
 describe("Testes de Integração — Transações", () => {
