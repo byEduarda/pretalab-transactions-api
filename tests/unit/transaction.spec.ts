@@ -1,5 +1,5 @@
 import { transactionById } from "../../src/services/transactions"; 
-import { Transaction } from "../../src/data"; 
+import { Transaction } from "../../src/models/data"; 
 describe("Testes Unitários — Transações", () => {
   it("deve retornar a transação correta pelo ID", async () => {
     const idFalso = "123";

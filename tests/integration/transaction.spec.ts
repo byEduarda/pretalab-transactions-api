@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../../src/index";
-import { transactions } from "../../src/data";
+import { transactions } from "../../src/models/data";
 
 describe("Testes de Integração — Transações", () => {
   it("deve retornar 200 e a transação ao buscar por ID existente", async () => {

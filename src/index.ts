@@ -1,6 +1,6 @@
 import express from "express";
 import cors from 'cors';
-import { transactions } from "./data";
+import { transactions } from "./models/data";
 import { getTransactionById } from "./controller/transaction";
 import { aiResponse } from "./controller/ai";
 import { ai } from "./services/prompt";
