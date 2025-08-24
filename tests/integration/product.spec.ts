@@ -11,20 +11,20 @@ describe("Integration: Products", () => {
     const res = await request(app).get("/api/products");
     expect(res.status).toBe(200);
     expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0]).toMatchObject({ id: expect.any(Number), name: expect.any(String), price: expect.any(Number) });
+    expect(res.body[0]).toMatchObject({ id: expect.any(String), name: expect.any(String), price: expect.any(Number) });
   });
 
   it("GET /api/products/:id deve retornar um produto específico", async () => {
     const res = await request(app).get("/api/products/1");
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ id: 1, name: "Notebook Gamer Pro" });
+    expect(res.body).toMatchObject({ id: "1", name: "Notebook Gamer Pro" });
   });
 
   it("POST /api/products deve criar um novo produto", async () => {
     const res = await request(app)
       .post("/api/products")
-      .send({ id: 1234, name: "Produto Teste", price: 500 });
+      .send({ id: "1234", name: "Produto Teste", price: 500 });
     expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({ id: 1234, name: "Produto Teste", price: 500 });
+    expect(res.body).toMatchObject({ id: "1234", name: "Produto Teste", price: 500 });
   });
 });

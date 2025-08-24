@@ -3,16 +3,16 @@ import { products } from "../models/productModel";
 import { v4 as uuidv4 } from "uuid";
 
 export const createPurchase = (
-  cart: { productId: number | string; quantity: number }[],
+  cart: { productId: string; quantity: number }[],
   total: number
 ): Purchase => {
   if (!cart || total <= 0) throw new Error("Dados da compra inválidos.");
   if (total > 20000) throw new Error("O valor total da compra excede o limite de R$20.000.");
 
   const items: PurchaseItem[] = cart.map((c) => {
-    const product = products.find((p) => p.id === Number(c.productId));
+    const product = products.find((p) => p.id === (c.productId));
     return {
-      productId: Number(c.productId),
+      productId: c.productId,
       quantity: c.quantity,
       name: product?.name || "Produto não encontrado",
       price: product?.price || 0,

@@ -8,14 +8,14 @@ export const getProducts = (_req: Request, res: Response) => {
 };
 
 export const getProduct = (req: Request, res: Response) => {
-  const product = productService.getProductById(Number(req.params.id));
+  const product = productService.getProductById(req.params.id);
   if (!product) return res.status(404).json({ message: "Produto não encontrado." });
   res.json(product);
 };
 
 export const addProduct = (req: Request, res: Response) => {
   const newProduct: Product = {
-    id: Number(req.body.id) || Math.floor(Math.random() * 10000),
+    id: req.body.id ? String(req.body.id) : uuidv4(),
     name: req.body.name,
     price: req.body.price,
   };
