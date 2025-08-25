@@ -1,23 +1,46 @@
 import request from "supertest";
-import app from "../../src";
-import { transactions } from "../../src/models/data";
+import express from "express";
+import transactionRoutes from "../../src/routes/transactionRoutes";
 
-describe("Testes de Integração — Transações", () => {
-  it("deve retornar 200 e a transação ao buscar por ID existente", async () => {
-    const transacaoExistente = transactions[0]; 
+const app = express();
+app.use(express.json());
+app.use("/api/transactions", transactionRoutes);
 
-    const resposta = await request(app).get(`/transactions/${transacaoExistente.id}`);
+describe("Integration: Transactions", () => {
+  it("GET /api/transactions deve retornar todas as transações", async () => {
+    const res = await request(app).get("/api/transactions");
 
-    expect(resposta.status).toBe(200);
-    expect(resposta.body.transaction.id).toBe(transacaoExistente.id);
-    expect(resposta.body.transaction.amount).toBe(transacaoExistente.amount);
-    expect(resposta.body.transaction.type).toBe(transacaoExistente.type);
+    expect(res).toMatchObject({
+      status: 200,
+      body: expect.arrayContaining([
+        expect.objectContaining({ id: expect.any(String), description: expect.any(String), amount: expect.any(Number) }),
+      ]),
+    });
   });
 
-  it("deve retornar 404 ao buscar transação inexistente", async () => {
-    const resposta = await request(app).get("/transactions/999");
+  it("GET /api/transactions/:id deve retornar uma transação específica", async () => {
+    const res = await request(app).get("/api/transactions/1");
 
-    expect(resposta.status).toBe(404);
-    expect(resposta.body.message).toBe("Transação não encontrada");
+    expect(res).toMatchObject({
+      status: 200,
+      body: { id: "1", description: "Salário de Julho" },
+    });
+  });
+
+  it("POST /api/transactions deve criar uma nova transação", async () => {
+    const newTransaction = {
+      description: "Teste",
+      amount: 200,
+      type: "expense",
+      category: "Teste",
+      date: new Date().toISOString(),
+    };
+
+    const res = await request(app).post("/api/transactions").send(newTransaction);
+
+    expect(res).toMatchObject({
+      status: 201,
+      body: { description: "Teste", amount: 200, type: "expense", category: "Teste" },
+    });
   });
 });
