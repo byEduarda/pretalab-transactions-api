@@ -9,15 +9,19 @@ describe("Testes de Integração — Transações", () => {
     const resposta = await request(app).get(`/transactions/${transacaoExistente.id}`);
 
     expect(resposta.status).toBe(200);
-    expect(resposta.body.transaction.id).toBe(transacaoExistente.id);
-    expect(resposta.body.transaction.amount).toBe(transacaoExistente.amount);
-    expect(resposta.body.transaction.type).toBe(transacaoExistente.type);
+    expect(resposta.body.transaction).toMatchObject({
+      id: transacaoExistente.id,
+      amount: transacaoExistente.amount,
+      type: transacaoExistente.type,
+    });
   });
 
   it("deve retornar 404 ao buscar transação inexistente", async () => {
     const resposta = await request(app).get("/transactions/999");
 
     expect(resposta.status).toBe(404);
-    expect(resposta.body.message).toBe("Transação não encontrada");
+    expect(resposta.body).toMatchObject({
+      message: "Transação não encontrada",
+    });
   });
 });
