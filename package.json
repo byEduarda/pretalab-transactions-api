@@ -4,7 +4,6 @@
   "description": "API de Transações e Compras Pretalab",
   "main": "src/app.ts",
   "scripts": {
-    "build": "tsc",
     "start": "ts-node src/app.ts",
     "test": "jest --runInBand",
     "test:unit": "jest ./tests/unit --config jest.config.js --runInBand",
