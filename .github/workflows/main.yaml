@@ -64,15 +64,9 @@ jobs:
 
       - name: 🔒 Google Auth
         id: auth
-        uses: "google-github-actions/auth@v2"
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: "${{ secrets.GCP_SA_KEY }}"
-       
-      - name: Build Docker image
-        run: |
-          IMAGE="gcr.io/${{ secrets.GCP_PROJECT }}/pretalab-api:${GITHUB_SHA}"
-          docker build -t $IMAGE .
-          docker push $IMAGE    
 
       - name: 🏗️ Deploy to Cloud Run
         id: deploy
@@ -80,8 +74,7 @@ jobs:
         with:
           service: ${{ secrets.SERVICE_NAME }}
           region: ${{ secrets.SERVICE_REGION }}
-          image: gcr.io/${{ secrets.GCP_PROJECT }}/pretalab-api:${GITHUB_SHA}
+          source: ./   
 
       - name: 📤 Show Output
         run: echo ${{ steps.deploy.outputs.url }}
-        
