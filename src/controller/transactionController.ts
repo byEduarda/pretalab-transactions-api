@@ -10,7 +10,7 @@ export const getTransactions = (_req: Request, res: Response) => {
 export const getTransaction = (req: Request, res: Response) => {
   const transaction = transactionService.getTransactionById(req.params.id);
   if (!transaction) return res.status(404).json({ message: "Transação não encontrada." });
-  res.json(transaction);
+  res.json({ transaction} );
 };
 
 export const addTransaction = (req: Request, res: Response) => {
