@@ -7,7 +7,8 @@
     "start": "ts-node src/app.ts",
     "test": "jest --runInBand",
     "test:unit": "jest ./tests/unit --config jest.config.js --runInBand",
-    "test:integration": "jest ./tests/integration --config jest.config.js --runInBand --detectOpenHandles --forceExit"
+    "test:integration": "jest ./tests/integration --config jest.config.js --runInBand --detectOpenHandles --forceExit",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
