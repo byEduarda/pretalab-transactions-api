@@ -31,7 +31,7 @@ app.get("/transactions", (_req, res) => {
   res.json({ transactions });
 });
 
-app.get("/transactions/:id", getTransactionById);
+app.get("api/transactions/:id", getTransactionById);
 
 app.post("/ai", async (req, res) => aiResponse(req, res));
 
