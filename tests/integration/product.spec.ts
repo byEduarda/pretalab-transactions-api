@@ -4,12 +4,12 @@ import productRoutes from "../../src/routes/productRoutes";
 
 const app = express();
 app.use(express.json());
-app.use("/products", productRoutes);
+app.use("/api/products", productRoutes);
 
 describe("Integration: Products", () => {
 
-  it("GET /products deve retornar todos os produtos", async () => {
-    const res = await request(app).get("/products");
+  it("GET /api/products deve retornar todos os produtos", async () => {
+    const res = await request(app).get("/api/products");
 
     expect(res).toMatchObject({
       status: 200,
@@ -19,8 +19,8 @@ describe("Integration: Products", () => {
     });
   });
 
-  it("GET /products/:id deve retornar um produto específico", async () => {
-    const res = await request(app).get("/products/1");
+  it("GET /api/products/:id deve retornar um produto específico", async () => {
+    const res = await request(app).get("/api/products/1");
 
     expect(res).toMatchObject({
       status: 200,
@@ -28,8 +28,8 @@ describe("Integration: Products", () => {
     });
   });
 
-  it("GET /products/:id deve retornar 404 se produto não existir", async () => {
-    const res = await request(app).get("/products/999");
+  it("GET /api/products/:id deve retornar 404 se produto não existir", async () => {
+    const res = await request(app).get("/api/products/999");
 
     expect(res).toMatchObject({
       status: 404,
