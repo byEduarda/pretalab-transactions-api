@@ -18,5 +18,5 @@ export const getPurchases = (_req: Request, res: Response) => {
 export const getPurchase = (req: Request, res: Response) => {
   const purchase = purchaseService.getPurchaseById(req.params.id);
   if (!purchase) return res.status(404).json({ message: "Compra não encontrada." });
-  res.json(purchase);
+  res.json({ purchase });
 };

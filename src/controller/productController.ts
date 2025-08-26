@@ -8,5 +8,5 @@ export const getProducts = (_req: Request, res: Response) => {
 export const getProduct = (req: Request, res: Response) => {
   const product = productService.getProductById(req.params.id);
   if (!product) return res.status(404).json({ message: "Produto não encontrado." });
-  res.json(product);
+  res.json({ product });
 };
