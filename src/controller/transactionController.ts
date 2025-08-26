@@ -8,7 +8,7 @@ export const TransactionById = (req: Request, res: Response) => {
 };
 
 export const getTransactions = (_req: Request, res: Response) => {
-  res.status(200).json({ getTransactions });
+  res.status(200).json({ getAllTransactions });
 };
 
 export const postTransaction = (req: Request, res: Response) => {
