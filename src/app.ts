@@ -7,6 +7,7 @@ import transactionRoutes from "./routes/transactionRoutes";
 import purchaseRoutes from "./routes/purchaseRoutes";
 import checkoutRoutes from "./routes/checkoutRoutes";
 
+import { checkout } from "./controller/checkoutController";
 import { aiResponse } from "./controller/ai";
 import { ai } from "./services/prompt";
 
@@ -22,6 +23,8 @@ app.use("/products", productRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/purchases", purchaseRoutes);
 app.use("/checkout", checkoutRoutes);
+
+app.post("/checkout", checkout);
 
 app.get("/", (_req, res) => {
   res.json({ message: "Transactions API v2.1" });
