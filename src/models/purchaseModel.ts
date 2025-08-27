@@ -1,7 +1,7 @@
 export interface PurchaseItem {
   productId: string;
-  name: string;
   quantity: number;
+  name: string;
   price: number;
 }
 
@@ -14,11 +14,11 @@ export interface Purchase {
 
 export const purchases: Purchase[] = [
   {
-    id: "5eeb7f10-7ca4-4432-815d-0dc74021c91d",
-    date: new Date().toISOString(),
-    total: 7500,
+    id: "1",
+    date: "2024-07-28T14:45:12Z",
+    total: 7850,
     items: [
-      { productId: "1", name: "Notebook Gamer Pro", quantity: 1, price: 7500 },
+      { productId: "1", quantity: 1, name: "Notebook Gamer Pro", price: 7500 },
     ],
   },
 ];

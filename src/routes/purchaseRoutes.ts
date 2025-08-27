@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { checkout, getPurchases, getPurchase } from "../controller/purchaseController";
+import { checkout, listPurchases, getPurchase } from "../controller/purchaseController";
 
 const router = Router();
 
-router.post("/checkout", checkout); 
-router.get("/", getPurchases);      
-router.get("/:id", getPurchase);    
+router.get("/", listPurchases);
+router.get("/:id", getPurchase);
+router.post("/", checkout);
 
 export default router;

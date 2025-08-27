@@ -1,36 +1,20 @@
-import { purchases, Purchase, PurchaseItem } from "../models/purchaseModel";
-import { products } from "../models/productModel";
-import { v4 as uuidv4 } from "uuid";
-
-export const createPurchase = (
-  cart: { productId: string; quantity: number }[],
-  total: number
-): Purchase => {
-  if (!cart || total <= 0) throw new Error("Dados da compra inválidos.");
-  if (total > 20000) throw new Error("O valor total da compra excede o limite de R$20.000.");
-
-  const items: PurchaseItem[] = cart.map((c) => {
-    const product = products.find((p) => p.id === (c.productId));
-    return {
-      productId: c.productId,
-      quantity: c.quantity,
-      name: product?.name || "Produto não encontrado",
-      price: product?.price || 0,
-    };
-  });
-
-  const newPurchase: Purchase = {
-    id: uuidv4(),
-    date: new Date().toISOString(),
-    total,
-    items,
-  };
-
-  purchases.unshift(newPurchase);
-  return newPurchase;
-};
+import { Purchase, purchases } from "../models/purchaseModel";
 
 export const getAllPurchases = (): Purchase[] => purchases;
 
-export const getPurchaseById = (id: string): Purchase | undefined =>
-  purchases.find((p) => p.id === id);
+export const getPurchaseById = (id: string): Purchase | null =>
+  purchases.find(p => p.id === id) || null;
+
+export const createPurchase = (data: Omit<Purchase, "id" | "date">): Purchase | null => {
+  const total = data.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  if (total > 20000) return null;
+
+  const newPurchase: Purchase = {
+    ...data,
+    id: (purchases.length + 1).toString(),
+    total,
+    date: new Date().toISOString(),
+  };
+  purchases.push(newPurchase);
+  return newPurchase;
+};

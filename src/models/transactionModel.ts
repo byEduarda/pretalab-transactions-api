@@ -16,12 +16,4 @@ export const transactions: Transaction[] = [
     type: "income",
     category: "Salário",
   },
-  {
-    id: "2",
-    date: "2024-07-15T12:30:00Z",
-    description: "Aluguel",
-    amount: 1500,
-    type: "expense",
-    category: "Moradia",
-  },
 ];

@@ -18,10 +18,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-
 app.use("/api/products", productRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/purchases", purchaseRoutes);
+app.use("/api/checkout", purchaseRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "Transactions API v2.1" });

@@ -6,10 +6,10 @@ describe("Testes de Integração — Transações", () => {
   it("deve retornar 200 e a transação ao buscar por ID existente", async () => {
     const transacaoExistente = transactions[0]; 
 
-    const resposta = await request(app).get(`/transactions/${transacaoExistente.id}`);
+    const resposta = await request(app).get(`/api/transactions/${transacaoExistente.id}`);
 
     expect(resposta.status).toBe(200);
-    expect(resposta.body.transaction).toMatchObject({
+    expect(resposta.body).toMatchObject({
       id: transacaoExistente.id,
       amount: transacaoExistente.amount,
       type: transacaoExistente.type,
@@ -17,7 +17,7 @@ describe("Testes de Integração — Transações", () => {
   });
 
   it("deve retornar 404 ao buscar transação inexistente", async () => {
-    const resposta = await request(app).get("/transactions/999");
+    const resposta = await request(app).get("/api/transactions/999");
 
     expect(resposta.status).toBe(404);
     expect(resposta.body).toMatchObject({
