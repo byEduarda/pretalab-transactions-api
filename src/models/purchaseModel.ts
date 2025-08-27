@@ -1,15 +1,15 @@
 export interface PurchaseItem {
   productId: string;
-  quantity: number;
   name: string;
   price: number;
+  quantity: number;
 }
 
 export interface Purchase {
   id: string;
   date: string;
-  total: number;
   items: PurchaseItem[];
+  total: number;
 }
 
 export const purchases: Purchase[] = [
