@@ -22,9 +22,9 @@ app.use(cors());
 app.use("/products", productRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/purchases", purchaseRoutes);
-app.use("/checkout", checkoutRoutes);
+app.use("/api/checkout", checkoutRoutes);
 
-app.post("/checkout", checkout);
+app.post("/api/checkout", checkout);
 
 app.get("/", (_req, res) => {
   res.json({ message: "Transactions API v2.1" });
