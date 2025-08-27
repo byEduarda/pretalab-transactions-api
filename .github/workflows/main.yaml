@@ -44,9 +44,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
+      - name: Create connection to MongoDB
+        run: docker network create "microservice-network"
+         
+      - name: Set up Mongodb
+        run: docker-compose up -d
+      
+      - name: Check mongod
+        run: docker ps   
+        
       - name: Install dependencies
         run: npm install
       - name: Run integration tests
+        env:
+          MONGO_URL: mongodb://admin:password@localhost:27017
         run: npm run test:integration      
 
   deploy:
