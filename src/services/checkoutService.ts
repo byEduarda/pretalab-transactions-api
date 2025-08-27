@@ -41,8 +41,8 @@ export const processCheckout = (data: CheckoutData): Purchase => {
   }
 
   const newPurchase: Purchase = {
-    id: String(Date.now()),
-    date: new Date().toISOString(),
+    id: String(purchases.length + 1),
+    date: new Date().toISOString().split("T")[0],
     items,
     total,
   };
