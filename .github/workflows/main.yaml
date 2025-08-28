@@ -11,55 +11,76 @@ on:
 jobs:
   unit-test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         node-version: [20.x]
+
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm install
-      - run: npm run test:unit
+
+      - name: Install dependencies
+        run: npm install
+      - name: Run unit tests
+        run: npm run test:unit
 
   integration-test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         node-version: [20.x]
+
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm install
-      - name: Load MONGO_URL from secrets
-        run: echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> $GITHUB_ENV
-      - run: npm run test:integration
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Load MONGO_URL from .env
+        run: |
+          export $(grep MONGO_URL .env)
+          echo "MONGO_URL=$MONGO_URL" >> $GITHUB_ENV
+
+      - name: Run integration tests
+        run: npm run test:integration
 
   deploy:
     runs-on: ubuntu-latest
     needs: [unit-test, integration-test]
     if: github.ref == 'refs/heads/main'
+
     permissions:
-      contents: read
-      id-token: write
+      contents: "read"
+      id-token: "write"
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: 🔒 Google Auth
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
       - name: 🏗️ Deploy to Cloud Run
+        id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ secrets.SERVICE_NAME }}
           region: ${{ secrets.SERVICE_REGION }}
-          source: ./
-          env_vars: |
-            MONGO_URL=${{ secrets.MONGO_URL }}
-      - run: echo "URL do serviço: ${{ steps.deploy.outputs.url }}"
+          source: ./   
+
+      - name: 📤 Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
