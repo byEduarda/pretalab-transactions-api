@@ -1,20 +1,14 @@
-import { getAllProducts, getProductById, createProduct } from "../../src/services/productService";
+import { getAllProducts, getProductById } from "../../src/services/productService";
 import { products } from "../../src/models/productModel";
 
-describe("Unit: Products", () => {
-  it("deve retornar todos os produtos", () => {
-    const result = getAllProducts();
-    expect(result).toMatchObject(products);
+describe("Product Service Unit Tests", () => {
+  it("should return all products", () => {
+    const all = getAllProducts();
+    expect(all).toMatchObject(products);
   });
 
-  it("deve retornar produto específico pelo id", () => {
-    const product = getProductById("1");
-    expect(product).toMatchObject({ id: "1", name: "Notebook Gamer Pro" });
-  });
-
-  it("deve criar um novo produto", () => {
-    const newProduct = { id: "9999", name: "Teste", price: 100 };
-    const result = createProduct(newProduct);
-    expect(result).toMatchObject(newProduct);
+  it("should return a product by id", () => {
+    const prod = getProductById("1");
+    expect(prod).toMatchObject({ id: "1", name: "Notebook Gamer Pro", price: 7500 });
   });
 });

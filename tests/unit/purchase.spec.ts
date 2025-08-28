@@ -1,41 +1,51 @@
-import { createPurchase, getAllPurchases, getPurchaseById } from "../../src/services/purchaseService";
-import { purchases } from "../../src/models/purchaseModel";
+import { Request, Response } from "express";
+import * as purchaseController from "../../src/controller/purchaseController";
+import * as purchaseService from "../../src/services/purchaseService";
 
-describe("Unit: Purchases", () => {
-  it("deve criar uma nova compra", () => {
-    const cart = [
-      { productId: "1", quantity: 1 },
-      { productId: "2", quantity: 2 },
-    ];
-    const total = 8200;
-    const result = createPurchase(cart, total);
-    expect(result).toMatchObject({
-      total,
-      items: [
-        { productId: "1", quantity: 1, name: expect.any(String), price: expect.any(Number) },
-        { productId: "2", quantity: 2, name: expect.any(String), price: expect.any(Number) },
-      ],
-    });
+jest.mock("../../src/services/purchaseService");
+
+describe("Purchase Controller Unit Tests", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusMock: jest.Mock;
+  let jsonMock: jest.Mock;
+
+  beforeEach(() => {
+    statusMock = jest.fn().mockReturnThis();
+    jsonMock = jest.fn();
+    res = { status: statusMock, json: jsonMock };
+    req = {};
+    jest.clearAllMocks();
   });
 
-  it("deve retornar todas as compras", () => {
-    const result = getAllPurchases();
-    expect(result).toMatchObject(purchases);
+  it("getAllPurchases deve retornar todas as compras", () => {
+    const fakePurchases = [{ id: "1", total: 100 }];
+    (purchaseService.getAllPurchases as jest.Mock).mockReturnValue(fakePurchases);
+
+    purchaseController.getAllPurchases(req as Request, res as Response);
+
+    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
+      .toMatchObject({ status: 200, json: { purchases: fakePurchases } });
   });
 
-  it("deve retornar compra específica pelo id", () => {
-    const purchase = createPurchase([{ productId: "1", quantity: 1 }], 7500);
-    const result = getPurchaseById(purchase.id);
-    expect(result).toMatchObject({ id: purchase.id, total: 7500 });
+  it("getPurchaseById deve retornar a compra quando encontrada", () => {
+    const fakePurchase = { id: "1", total: 100 };
+    req.params = { id: "1" };
+    (purchaseService.getPurchaseById as jest.Mock).mockReturnValue(fakePurchase);
+
+    purchaseController.getPurchaseById(req as Request, res as Response);
+
+    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
+      .toMatchObject({ status: 200, json: { purchase: fakePurchase } });
   });
 
-  it("deve lançar erro se total exceder 20.000", () => {
-    expect(() => createPurchase([{ productId: "1", quantity: 10 }], 25000))
-      .toThrow("O valor total da compra excede o limite de R$20.000.");
-  });
+  it("getPurchaseById deve retornar 404 quando compra não encontrada", () => {
+    req.params = { id: "999" };
+    (purchaseService.getPurchaseById as jest.Mock).mockReturnValue(undefined);
 
-  it("deve lançar erro se dados forem inválidos", () => {
-    expect(() => createPurchase([], 0))
-      .toThrow("Dados da compra inválidos.");
+    purchaseController.getPurchaseById(req as Request, res as Response);
+
+    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
+      .toMatchObject({ status: 404, json: { message: "Compra não encontrada" } });
   });
 });

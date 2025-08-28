@@ -1,11 +1,6 @@
-import { products, Product } from "../models/productModel";
+import { Product, products } from "../models/productModel";
 
 export const getAllProducts = (): Product[] => products;
 
 export const getProductById = (id: string): Product | undefined =>
-  products.find((p) => p.id.toString() === id.toString());
-
-export const createProduct = (product: Product): Product => {
-  products.push(product);
-  return product;
-};
+  products.find(p => p.id === id);

@@ -1,18 +1,18 @@
 import express from "express";
-import cors from 'cors';
+import cors from "cors";
+import dotenv from "dotenv";
 
 import productRoutes from "./routes/productRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
 import purchaseRoutes from "./routes/purchaseRoutes";
+import checkoutRoutes from "./routes/checkoutRoutes";
 
-import { transactions } from "./models/data";
-import { getTransactionById } from "./controller/transaction";
+import { checkout } from "./controller/checkoutController";
 import { aiResponse } from "./controller/ai";
 import { ai } from "./services/prompt";
-import dotenv from "dotenv";
-dotenv.config();
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 
