@@ -1,7 +1,21 @@
+import dotenv from "dotenv";
 import app from "./app";
+import { connectToMongo } from "./database/connectToMongo";
 
-const PORT = parseInt(process.env.PORT || "3000", 10);
+dotenv.config();
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+
+const startServer = async () => {
+  try {
+    await connectToMongo();
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Erro ao iniciar o servidor:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
