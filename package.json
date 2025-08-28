@@ -8,6 +8,8 @@
     "test": "jest --runInBand",
     "test:unit": "jest ./tests/unit --config jest.config.js --runInBand",
     "test:integration": "jest ./tests/integration --config jest.config.js --runInBand --detectOpenHandles --forceExit",
+    "test:coverage": "jest --coverage",
+    "start:docker": "docker-compose up -d",
     "build": "tsc"
   },
   "keywords": [],
@@ -26,6 +28,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
