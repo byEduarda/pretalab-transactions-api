@@ -1,16 +1,8 @@
 import axios from "axios";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-}
-
-export const getProducts = async (): Promise<Product[]> => {
+export const getProducts = async () => {
   try {
-    const response = await axios.get<Product[]>(
-      'https://finshopping.vercel.app/api/products'
-    );
+    const response = await axios.get("https://finshopping.vercel.app/api/products");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar produtos:", error);
@@ -18,7 +10,5 @@ export const getProducts = async (): Promise<Product[]> => {
   }
 };
 
-(async () => {
-  const products = await getProducts();
-  console.log("Resultado da API:", products);
-})();
+
+
