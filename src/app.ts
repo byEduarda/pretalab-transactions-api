@@ -39,7 +39,7 @@ app.post("/chat", async (req, res) => {
   const { prompt } = req.body;
   const resposta = await ai(prompt);
   res.json({ resposta });
-});
+}); 
 
 export default app;
   
