@@ -46,7 +46,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -57,10 +59,14 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Load MONGO_URL from .env
+        run: |
+          export $(grep MONGO_URL .env)
+          echo "MONGO_URL=$MONGO_URL" >> $GITHUB_ENV
+
       - name: Run integration tests
-        env:
-          MONGO_URL: mongodb://localhost:27017
-        run: npm run test:integration      
+        run: npm run test:integration
 
   deploy:
     runs-on: ubuntu-latest
