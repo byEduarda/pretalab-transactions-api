@@ -1,24 +1,21 @@
-import app from "./app";
-import { connectToMongo } from "./database/mongooseConnection";
 import dotenv from "dotenv";
+import app from "./app";
+import { connectToMongo } from "./database/connectToMongo";
+
 dotenv.config();
 
-const MONGO_URL = process.env.MONGO_URL;
+const PORT = process.env.PORT || 3000;
 
-if (!MONGO_URL) {
-  console.error("Erro: URL do MongoDB não definida. Verifique seu arquivo .env ou .env.test.");
-  process.exit(1);
-}
-
-connectToMongo(MONGO_URL)
-  .then(() => {
-    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-  })
-  .catch(err => {
-    console.error("Falha ao conectar ao MongoDB.", err);
+const startServer = async () => {
+  try {
+    await connectToMongo();
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Erro ao iniciar o servidor:", error);
     process.exit(1);
-  });
+  }
+};
 
-const PORT = parseInt(process.env.PORT || "3000", 10);
-
-
+startServer();
