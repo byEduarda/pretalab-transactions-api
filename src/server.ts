@@ -4,7 +4,7 @@ import { connectToMongo } from "./database/connectToMongo";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; 
 
 const startServer = async () => {
   try {
@@ -18,4 +18,6 @@ const startServer = async () => {
   } 
 };
 
-startServer();
+connectToMongo()
+  .then(() => console.log("Conectado ao MongoDB"))
+  .catch((err) => console.error("Erro ao conectar ao MongoDB:", err));
