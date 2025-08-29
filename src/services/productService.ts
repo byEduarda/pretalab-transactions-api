@@ -9,6 +9,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const response = await fetch(API_URL);
   if (!response.ok) throw new Error("Erro ao buscar produtos");
+
   return response.json();
 };
 
@@ -17,8 +18,9 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     return products.find((p) => p.id === id) || null;
   }
 
-  const response = await fetch(`${API_URL}/${id}`);
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error("Erro ao buscar produto");
-  return response.json();
+  const response = await fetch(API_URL);
+  if (!response.ok) throw new Error("Erro ao buscar produtos");
+
+  const allProducts: Product[] = await response.json();
+  return allProducts.find((p) => p.id === id) || null;
 };
