@@ -1,10 +1,10 @@
 import { Router } from "express";
-import * as transactionController from "../controller/transactionController";
+import { getAllTransactions, getTransactionById, createTransaction } from "../controller/transactionController";
 
 const router = Router();
 
-router.get("/", transactionController.getAllTransactions);
-router.get("/:id", transactionController.getTransactionById);
-router.post("/", transactionController.createTransaction);
+router.get("/", getAllTransactions);
+router.post("/", createTransaction);
+router.get("/:id", getTransactionById);
 
 export default router;

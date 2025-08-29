@@ -8,8 +8,6 @@ import purchaseRoutes from "./routes/purchaseRoutes";
 import checkoutRoutes from "./routes/checkoutRoutes";
 
 import { checkout } from "./controller/checkoutController";
-import { getAllTransactions } from "./controller/transactionController";
-import { getTransactionById } from "./controller/transactionController";
 import { aiResponse } from "./controller/ai";
 import { ai } from "./services/prompt";
 
@@ -19,18 +17,13 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/products", productRoutes);
-app.use("/transactions", transactionRoutes);
+app.use("/api/transactions", transactionRoutes);
 app.use("/purchases", purchaseRoutes);
 app.use("/checkout", checkoutRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "Transactions API v2.1" });
 });
-
-app.get("/transactions", (_req, res) => {
-  res.json({ getAllTransactions });
-});
-app.get("/transactions/:id", getTransactionById);
 
 app.post("/checkout", async (req, res) => checkout(req, res));
 
