@@ -72,4 +72,20 @@ export const transactions: Transaction[] = [
     type: "expense",
     category: "Transporte",
   },
+  {
+    id: "9",
+    date: "2024-08-01T10:00:00Z",
+    description: "Pagamento Freelance",
+    amount: 800,
+    type: "income",
+    category: "Renda Extra",
+  },
+  {
+    id: "10",
+    date: "2024-08-02T15:00:00Z",
+    description: "Ingressos para show",
+    amount: 250,
+    type: "expense",
+    category: "Lazer",
+  },
 ];
