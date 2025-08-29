@@ -1,6 +1,24 @@
 import { Product, products } from "../models/productModel";
 
-export const getAllProducts = (): Product[] => products;
+const API_URL = "https://finshopping.vercel.app/api/products"; 
 
-export const getProductById = (id: string): Product | undefined =>
-  products.find(p => p.id === id);
+export const getAllProducts = async (): Promise<Product[]> => {
+  if (process.env.NODE_ENV === "test") {
+    return products;
+  }
+
+  const response = await fetch(API_URL);
+  if (!response.ok) throw new Error("Erro ao buscar produtos");
+  return response.json();
+};
+
+export const getProductById = async (id: string): Promise<Product | null> => {
+  if (process.env.NODE_ENV === "test") {
+    return products.find((p) => p.id === id) || null;
+  }
+
+  const response = await fetch(`${API_URL}/${id}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error("Erro ao buscar produto");
+  return response.json();
+};
