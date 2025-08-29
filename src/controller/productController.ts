@@ -1,25 +1,30 @@
 import { Request, Response } from "express";
-import * as productService from "../services/productService";
+import * as transactionService from "../services/transactionService";
+import { Transaction } from "../models/transactionModel";
+import { v4 as uuidv4 } from "uuid";
 
-export const getAllProducts = async (req: Request, res: Response) => {
-  try {
-    const products = await productService.getAllProducts();
-    res.status(200).json(products);
-  } catch (error) {
-    console.error("Erro:", error);
-    res.status(500).json({ message: "Erro ao buscar produtos" });
-  }
+export const getTransactions = (req: Request, res: Response) => {
+  const filters = {
+    type: req.query.type as "income" | "expense" | undefined,
+    category: req.query.category as string | undefined,
+    startDate: req.query.startDate as string | undefined,
+    endDate: req.query.endDate as string | undefined,
+    minAmount: req.query.minAmount ? Number(req.query.minAmount) : undefined,
+    maxAmount: req.query.maxAmount ? Number(req.query.maxAmount) : undefined,
+  };
+
+  const transactions = transactionService.getAllTransactions(filters);
+  res.json(transactions);
 };
 
-export const getProductById = async (req: Request, res: Response) => {
-  try {
-    const product = await productService.getProductById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Produto não encontrado" });
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    console.error("Erro:", error);
-    res.status(500).json({ message: "Erro ao buscar produto" });
-  }
+export const getTransaction = (req: Request, res: Response) => {
+  const transaction = transactionService.getTransactionById(req.params.id);
+  if (!transaction) return res.status(404).json({ message: "Transação não encontrada." });
+  res.json(transaction);
+};
+
+export const addTransaction = (req: Request, res: Response) => {
+  const newTransaction: Transaction = { id: uuidv4(), ...req.body };
+  const saved = transactionService.createTransaction(newTransaction);
+  res.status(201).json(saved);
 };
