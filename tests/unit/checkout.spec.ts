@@ -4,11 +4,11 @@ import app from "../../src/app";
 describe("Integration: Checkout", () => {
   it("POST /checkout deve criar uma nova compra com sucesso", async () => {
     const newPurchase = {
-      total: 8200,
       items: [
         { productId: "1", quantity: 1, name: "Notebook Gamer Pro", price: 7500 },
         { productId: "2", quantity: 1, name: "Mouse Gamer", price: 700 },
       ],
+      total: 8200,
     };
 
     const res = await request(app).post("/checkout").send(newPurchase);
