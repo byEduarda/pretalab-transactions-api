@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/products", productRoutes);
-app.use("/api/transactions", transactionRoutes);
+app.use("/transactions", transactionRoutes);
 app.use("/purchases", purchaseRoutes);
 app.use("/checkout", checkoutRoutes);
 
