@@ -1,6 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ITransaction extends Document {
+  id: string;
   date: Date;
   description: string;
   amount: number;
@@ -8,7 +9,7 @@ export interface ITransaction extends Document {
   category: string;
 }
 
-const transactionSchema = new Schema<ITransaction>({
+export const transactionSchema = new Schema<ITransaction>({
   date: { type: Date, required: true },
   description: { type: String, required: true },
   amount: { type: Number, required: true },
