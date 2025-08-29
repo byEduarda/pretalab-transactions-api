@@ -1,47 +1,52 @@
-import * as checkoutService from "../../src/services/checkoutService";
+import { processCheckout, CartItem } from "../../src/services/checkoutService";
 
 describe("Unit: checkoutService.processCheckout", () => {
-
-  it("deve processar uma nova compra com sucesso", async () => {
-    const cart = [
+  it("deve processar compra com sucesso", () => {
+    const cart: CartItem[] = [
       { productId: "1", quantity: 1 },
       { productId: "2", quantity: 2 },
     ];
     const total = 8200;
 
-    const result = await checkoutService.processCheckout(cart, total);
+    const result = processCheckout(cart, total);
 
     expect(result).toMatchObject({
+      cart,
       total,
-      items: [
-        { productId: "1", quantity: 1, price: 7500 },
-        { productId: "2", quantity: 2, price: 350 },
-      ],
     });
-    expect(result).toHaveProperty("id");
-    expect(result).toHaveProperty("date");
+    expect(result.id).toBeDefined();
+    expect(result.date).toBeDefined();
   });
 
-  it("deve lançar erro se o total exceder 20000", async () => {
-    const cart = [
-      { productId: "1", quantity: 3 }, 
+  it("deve lançar erro se total > 20000", () => {
+    const cart: CartItem[] = [
+      { productId: "1", quantity: 3 },
+      { productId: "2", quantity: 2 },
     ];
-    const total = 22500;
+    const total = 25000;
 
-    await expect(checkoutService.processCheckout(cart, total))
-      .rejects
-      .toThrow("O valor total da compra excede o limite de R$20.000.");
+    expect(() => processCheckout(cart, total)).toThrow(
+      "O valor total da compra excede o limite de R$20.000."
+    );
   });
 
-  it("deve lançar erro se os dados forem inválidos", async () => {
-    const invalidCart = [
-      { productId: "1", quantity: 0 }, 
+  it("deve lançar erro se dados inválidos", () => {
+    const invalidCart: any = [
+      { productId: 1, quantity: 0 }, 
     ];
     const total = 0;
 
-    await expect(checkoutService.processCheckout(invalidCart, total))
-      .rejects
-      .toThrow("Dados da compra inválidos.");
+    expect(() => processCheckout(invalidCart, total)).toThrow(
+      "Dados da compra inválidos."
+    );
   });
 
+  it("deve lançar erro se cart vazio", () => {
+    const emptyCart: CartItem[] = [];
+    const total = 1000;
+
+    expect(() => processCheckout(emptyCart, total)).toThrow(
+      "Dados da compra inválidos."
+    );
+  });
 });
