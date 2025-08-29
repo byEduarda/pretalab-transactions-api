@@ -1,38 +1,47 @@
-import request from "supertest";
-import app from "../../src/app";
+import * as checkoutService from "../../src/services/checkoutService";
 
-describe("Integration: Checkout", () => {
-  it("POST /checkout deve criar uma nova compra com sucesso", async () => {
-    const newPurchase = {
+describe("Unit: checkoutService.processCheckout", () => {
+
+  it("deve processar uma nova compra com sucesso", async () => {
+    const cart = [
+      { productId: "1", quantity: 1 },
+      { productId: "2", quantity: 2 },
+    ];
+    const total = 8200;
+
+    const result = await checkoutService.processCheckout(cart, total);
+
+    expect(result).toMatchObject({
+      total,
       items: [
-        { productId: "1", quantity: 1, name: "Notebook Gamer Pro", price: 7500 },
-        { productId: "2", quantity: 1, name: "Mouse Gamer", price: 700 },
+        { productId: "1", quantity: 1, price: 7500 },
+        { productId: "2", quantity: 2, price: 350 },
       ],
-      total: 8200,
-    };
-
-    const res = await request(app).post("/checkout").send(newPurchase);
-
-    expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({
-      total: newPurchase.total,
-      items: newPurchase.items,
     });
-    expect(res.body).toHaveProperty("id");
-    expect(res.body).toHaveProperty("date");
+    expect(result).toHaveProperty("id");
+    expect(result).toHaveProperty("date");
   });
 
-  it("POST /checkout deve retornar 400 se o total exceder 20000", async () => {
-    const invalidPurchase = {
-      total: 25000,
-      items: [{ productId: "1", quantity: 5, name: "Notebook Gamer Pro", price: 5000 }],
-    };
+  it("deve lançar erro se o total exceder 20000", async () => {
+    const cart = [
+      { productId: "1", quantity: 3 }, 
+    ];
+    const total = 22500;
 
-    const res = await request(app).post("/checkout").send(invalidPurchase);
-
-    expect(res.status).toBe(400);
-    expect(res.body).toMatchObject({
-      message: "O valor total da compra excede o limite de R$20.000.",
-    });
+    await expect(checkoutService.processCheckout(cart, total))
+      .rejects
+      .toThrow("O valor total da compra excede o limite de R$20.000.");
   });
+
+  it("deve lançar erro se os dados forem inválidos", async () => {
+    const invalidCart = [
+      { productId: "1", quantity: 0 }, 
+    ];
+    const total = 0;
+
+    await expect(checkoutService.processCheckout(invalidCart, total))
+      .rejects
+      .toThrow("Dados da compra inválidos.");
+  });
+
 });

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 interface CartItem {
   productId: string;
   quantity: number;
-  price: number;
+  price?: number;
 }
 
 let localCart: CartItem[] = [
@@ -11,42 +11,43 @@ let localCart: CartItem[] = [
   { productId: "2", quantity: 2, price: 350 },
 ];
 
-const CART_API_URL = "https://finshopping.vercel.app/api/shopping";
-
-export const getCartItems = async (): Promise<CartItem[]> => {
-  if (process.env.NODE_ENV === "test") return localCart;
-
-  const res = await fetch(CART_API_URL);
-  if (!res.ok) throw new Error("Erro ao buscar itens do carrinho");
-  return res.json();
-};
-
-export const processCheckout = async (items?: CartItem[]) => {
-  let cartItems = items;
-
-  if (!cartItems) {
-    cartItems = await getCartItems();
-  }
-
-  if (!cartItems || cartItems.length === 0) {
+export const processCheckout = async (
+  cart: CartItem[],
+  totalFromClient?: number
+) => {
+  if (!cart || cart.length === 0) {
     throw new Error("Carrinho vazio ou inválido");
   }
 
-  const total = cartItems.reduce((sum, item) => {
-    if (!item.productId || item.quantity <= 0 || item.price <= 0) {
+  cart.forEach((item) => {
+    if (!item.productId || item.quantity <= 0) {
       throw new Error("Dados da compra inválidos.");
     }
-    return sum + item.price * item.quantity;
-  }, 0);
+  });
+
+  const cartWithPrices = cart.map((item) => {
+    const local = localCart.find((c) => c.productId === String(item.productId));
+    if (!local) throw new Error("Produto não encontrado.");
+    return { ...item, price: local.price! };
+  });
+
+  const total = cartWithPrices.reduce(
+    (sum, item) => sum + item.price! * item.quantity,
+    0
+  );
 
   if (total > 20000) {
     throw new Error("O valor total da compra excede o limite de R$20.000.");
   }
 
+  if (totalFromClient && totalFromClient !== total) {
+    throw new Error("Total enviado não confere com o calculado.");
+  }
+
   return {
     id: uuidv4(),
     date: new Date().toISOString(),
-    items: cartItems,
+    items: cartWithPrices,
     total,
   };
 };
