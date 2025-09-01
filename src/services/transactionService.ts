@@ -1,44 +1,43 @@
-import { Transaction } from "../database/mongooseTransaction";
+import TransactionModel from '../models/transactionModel';
 
-interface Filter {
-  type?: "income" | "expense";
+interface TransactionQuery {
+  type?: string;
   category?: string;
   startDate?: string;
   endDate?: string;
-  minAmount?: number;
-  maxAmount?: number;
+  minAmount?: string;
+  maxAmount?: string;
 }
 
-export interface TransactionInput {
-  description: string;
-  amount: number;
-  type: "income" | "expense";
-  category: string;
-  date: string;
-}
+export const getAllTransactions = async (query: TransactionQuery) => {
+  const filter: any = {};
 
-export class TransactionService {
-  static async getTransactions(filter: Filter) {
-    const query: any = {};
-
-    if (filter.type) query.type = filter.type;
-    if (filter.category) query.category = filter.category;
-    if (filter.startDate || filter.endDate) query.date = {};
-    if (filter.startDate) query.date.$gte = new Date(filter.startDate);
-    if (filter.endDate) query.date.$lte = new Date(filter.endDate);
-    if (filter.minAmount || filter.maxAmount) query.amount = {};
-    if (filter.minAmount) query.amount.$gte = filter.minAmount;
-    if (filter.maxAmount) query.amount.$lte = filter.maxAmount;
-
-    return Transaction.find(query).sort({ date: -1 });
+  if (query.type) filter.type = query.type;
+  if (query.category) filter.category = query.category;
+  
+  if (query.minAmount || query.maxAmount) {
+    filter.amount = {};
+    if (query.minAmount) filter.amount.$gte = Number(query.minAmount);
+    if (query.maxAmount) filter.amount.$lte = Number(query.maxAmount);
   }
 
-  static async getTransactionById(id: string) {
-    return Transaction.findById(id);
+  if (query.startDate || query.endDate) {
+    filter.date = {};
+    if (query.startDate) filter.date.$gte = query.startDate;
+    if (query.endDate) filter.date.$lte = query.endDate;
   }
+  
+  const transactions = await TransactionModel.find(filter);
+  return transactions;
+};
 
-  static async createTransaction(data: TransactionInput) {
-    const transaction = new Transaction(data);
-    return transaction.save();
-  }
-}
+export const getTransactionById = async (id: string) => {
+  const transaction = await TransactionModel.findById(id);
+  return transaction;
+};
+
+export const createTransaction = async (data: any) => {
+  const newTransaction = new TransactionModel(data);
+  const savedTransaction = await newTransaction.save();
+  return savedTransaction;
+};

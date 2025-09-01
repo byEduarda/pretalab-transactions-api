@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
 export interface IPurchaseItem {
   productId: string;
@@ -7,22 +7,32 @@ export interface IPurchaseItem {
   price: number;
 }
 
-export interface IPurchases extends Document {
-  id?: string;
-  date: string;
+export interface IPurchase extends Document {
+  date: Date; 
   total: number;
   items: IPurchaseItem[];
 }
 
-const PurchasesSchema: Schema = new Schema({
-  date: { type: String, required: true, default: Date.now },
-  total: { type: Number, required: true },
-  items: [{
-    productId: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-  }],
+const purchaseItemSchema = new Schema<IPurchaseItem>({
+  productId: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+}, { _id: false });
+
+const purchaseSchema = new Schema<IPurchase>({
+  date: {
+    type: Date,
+    default: Date.now, 
+    required: true,
+  },
+  total: {
+    type: Number,
+    required: true,
+  },
+  items: [purchaseItemSchema], 
 });
 
-export const PurchasesModel = mongoose.model<IPurchases>('Purchases', PurchasesSchema);
+const PurchaseModel = model<IPurchase>('Purchase', purchaseSchema);
+
+export default PurchaseModel;

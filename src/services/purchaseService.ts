@@ -1,9 +1,21 @@
-import { purchases } from "../models//purchaseModel";
+import PurchaseModel from '../database/mongoosePurchases';
 
-export const getPurchaseById = (id: string) => {
-  return purchases.find(p => p.id === id);
+export const createPurchase = async (cart: any[], total: number) => {
+  const newPurchase = new PurchaseModel({
+    date: new Date().toISOString(), 
+    items: cart,
+    total,
+  });
+  const savedPurchase = await newPurchase.save();
+  return savedPurchase;
 };
 
-export const getAllPurchases = () => {
+export const getAllPurchases = async () => {
+  const purchases = await PurchaseModel.find({}).sort({ date: -1 });
   return purchases;
+};
+
+export const getPurchaseById = async (id: string) => {
+  const purchase = await PurchaseModel.findById(id);
+  return purchase;
 };

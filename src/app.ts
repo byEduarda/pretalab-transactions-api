@@ -1,39 +1,30 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+import express from 'express';
+import cors from 'cors';
 
-import productRoutes from "./routes/productRoutes";
-import transactionRoutes from "./routes/transactionRoutes";
-import purchaseRoutes from "./routes/purchaseRoutes";
-import checkoutRoutes from "./routes/checkoutRoutes";
+import productRoutes from './routes/productRoutes';
+import transactionRoutes from './routes/transactionRoutes';
+import purchaseRoutes from './routes/purchaseRoutes';
 
-import { checkout } from "./controller/checkoutController";
-import { aiResponse } from "./controller/ai";
-import { ai } from "./services/prompt";
+import { aiResponse, chat } from './controller/aiController';
+import { startSync } from './controller/syncController';
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.use("/products", productRoutes);
-app.use("/api/transactions", transactionRoutes);
-app.use("/purchases", purchaseRoutes);
-app.use("/checkout", checkoutRoutes);
+app.use('/api', productRoutes);
+app.use('/api', transactionRoutes);
+app.use('/api', purchaseRoutes);
+app.use('/api', productRoutes);
 
-app.get("/", (_req, res) => {
-  res.json({ message: "Transactions API v2.1" });
+app.post('/api/ai', aiResponse);
+app.post('/api/chat', chat);
+
+app.post('/api/sync-products', startSync);
+
+app.get('/', (_req, res) => {
+  res.json({ message: 'Transactions API v2.1' });
 });
 
-app.post("/checkout", async (req, res) => checkout(req, res));
-
-app.post("/ai", async (req, res) => aiResponse(req, res));
-app.post("/chat", async (req, res) => {
-  const { prompt } = req.body;
-  const resposta = await ai(prompt);
-  res.json({ resposta });
-}); 
-
 export default app;
-  
-

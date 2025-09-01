@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
-import * as productService from "../services/productService";
+import { Request, Response } from 'express';
+import ProductModel from '../database/mongooseProduct'; 
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await productService.getAllProducts();
+    const products = await ProductModel.find({});
     res.status(200).json(products);
   } catch (error) {
     console.error("Erro:", error);
@@ -13,7 +13,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 
 export const getProductById = async (req: Request, res: Response) => {
   try {
-    const product = await productService.getProductById(req.params.id);
+    const product = await ProductModel.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: "Produto não encontrado" });
     }
