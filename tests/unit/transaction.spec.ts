@@ -1,33 +1,66 @@
-import TransactionModel, { Transaction } from "../../src/database/mongooseTransaction";
-import { createTransaction } from "../../src/services/transactionService";
-import { jest } from "@jest/globals";
+import { TransactionModel } from "../../src/database/mongooseTransaction";
+import * as transactionService from "../../src/services/transactionService";
+import { connectDB, disconnectDB } from "../setup";
 
-// Mock do Mongoose
-jest.mock("../../src/models/transactionModel");
+describe("Transaction Service - Unit Tests", () => {
+  beforeAll(async () => {
+    await connectDB();
+    await TransactionModel.deleteMany({});
+  });
 
-// Tipando o mock
-const mockedTransactionModel = TransactionModel as jest.Mocked<typeof TransactionModel>;
-
-describe("Testes de Unidade do Serviço de Transações", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterAll(async () => {
+    await disconnectDB();
   });
 
   it("deve criar uma nova transação", async () => {
-    const mockTransaction: Omit<Transaction, "_id" | "__v"> = {
-      amount: 100,
-      category: "Alimentação",
-      date: new Date().toISOString(),
-      description: "Teste",
-      type: "expense",
+    const data = {
+      description: "Conta de Luz",
+      amount: 150,
+      type: "expense" as const,
+      category: "Contas",
+      date: new Date(),
     };
+    const transaction = await transactionService.createTransaction(data);
 
-    // Mockando create do Mongoose com tipagem correta
-    mockedTransactionModel.create.mockResolvedValue(mockTransaction as Transaction);
+    expect(transaction).toMatchObject({
+      description: "Conta de Luz",
+      amount: 150,
+      type: "expense",
+      category: "Contas",
+    });
+  });
 
-    const result = await createTransaction(mockTransaction);
+  it("deve retornar uma transação pelo ID", async () => {
+    const transaction = await TransactionModel.create({
+      description: "Salário",
+      amount: 5000,
+      type: "income" as const,
+      category: "Salário",
+      date: new Date(),
+    });
 
-    expect(result).toEqual(mockTransaction);
-    expect(mockedTransactionModel.create).toHaveBeenCalledWith(mockTransaction);
+    const found = await transactionService.getTransactionById(transaction._id.toString());
+    expect(found).toMatchObject({
+      description: "Salário",
+      amount: 5000,
+      type: "income",
+      category: "Salário",
+    });
+  });
+
+  it("deve filtrar transações por tipo e categoria", async () => {
+    await TransactionModel.create({
+      description: "Aluguel",
+      amount: 1200,
+      type: "expense",
+      category: "Moradia",
+      date: new Date(),
+    });
+
+    const results = await transactionService.getAllTransactions({ type: "expense", category: "Moradia" });
+    expect(results[0]).toMatchObject({
+      type: "expense",
+      category: "Moradia",
+    });
   });
 });

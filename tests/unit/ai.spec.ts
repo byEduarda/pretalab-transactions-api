@@ -1,6 +1,6 @@
 import { generateResponse } from "../../src/services/aiService";
 
-jest.mock("../../src/services/geminiClient", () => ({
+jest.mock("../../src/services/aiService", () => ({
   geminiClient: {
     generateContent: jest.fn().mockResolvedValue("Resposta simulada da IA")
   }

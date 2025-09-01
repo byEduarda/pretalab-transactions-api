@@ -1,29 +1,30 @@
 import { Request, Response } from "express";
 import * as transactionService from "../services/transactionService";
 
-export const getTransactions = async (req: Request, res: Response) => {
+export const getAllTransactions = async (req: Request, res: Response) => {
   try {
-    const transactions = await transactionService.getTransactions(req.query);
-    return res.json(transactions);
+    const transactions = await transactionService.getAllTransactions(req.query);
+    res.status(200).json(transactions);
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar transações." });
+    res.status(500).json({ message: "Erro ao buscar transações", error });
   }
 };
 
-export const getTransactionById = async (req: Request, res: Response) => {
+export const getTransaction = async (req: Request, res: Response) => {
   try {
     const transaction = await transactionService.getTransactionById(req.params.id);
-    return res.json(transaction);
+    if (!transaction) return res.status(404).json({ message: "Transação não encontrada." });
+    res.status(200).json(transaction);
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar transação por ID." });
+    res.status(500).json({ message: "Erro ao buscar transação", error });
   }
 };
 
-export const createTransaction = async (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   try {
     const transaction = await transactionService.createTransaction(req.body);
-    return res.status(201).json(transaction);
+    res.status(201).json(transaction);
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao criar transação." });
+    res.status(500).json({ message: "Erro ao criar transação", error });
   }
 };

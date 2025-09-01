@@ -1,17 +1,13 @@
-import mongoose from "mongoose";
 import request from "supertest";
 import app from "../../src/app";
-import dotenv from "dotenv"
-dotenv.config();
+import { connectDB, disconnectDB } from "../setup";
 
 beforeAll(async () => {
-  if (!process.env.MONGO_URI) throw new Error("MONGO_URI não está definido");
-  await mongoose.connect(process.env.MONGO_URI!, { dbName: "test_db" });
+  await connectDB();
 });
 
 afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
+  await disconnectDB();
 });
 
 describe("Integração da Rota de Sincronização", () => {

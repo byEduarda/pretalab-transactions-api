@@ -1,21 +1,19 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model } from "mongoose";
 
-export interface Transaction extends Document {
-  date: string;
+export interface Transaction {
   description: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   category: string;
+  date: Date;
 }
 
 const transactionSchema = new Schema<Transaction>({
-  date: { type: String, required: true },
   description: { type: String, required: true },
   amount: { type: Number, required: true },
-  type: { type: String, enum: ['income', 'expense'], required: true },
+  type: { type: String, enum: ["income", "expense"], required: true },
   category: { type: String, required: true },
-});
+  date: { type: Date, required: true },
+}, { timestamps: true });
 
-const TransactionModel = model<Transaction>('Transaction', transactionSchema);
-
-export default TransactionModel;
+export const TransactionModel = model<Transaction>("Transaction", transactionSchema);

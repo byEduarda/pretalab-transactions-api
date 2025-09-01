@@ -1,23 +1,21 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import dotenv from "dotenv";
 
-let mongoServer: MongoMemoryServer;
+dotenv.config({ path: ".env.test" });
 
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-});
+let isConnected = false;
 
-afterAll(async () => {
+export const connectDB = async () => {
+  if (isConnected) return;
+  if (!process.env.MONGO_URI_TEST) throw new Error("MONGO_URI_TEST não definido");
+
+  await mongoose.connect(process.env.MONGO_URI_TEST, { dbName: "test_db" });
+  isConnected = true;
+};
+
+export const disconnectDB = async () => {
+  if (!isConnected) return;
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
-  await mongoServer.stop();
-});
-
-afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    await collections[key].deleteMany({});
-  }
-});
+  isConnected = false;
+};
