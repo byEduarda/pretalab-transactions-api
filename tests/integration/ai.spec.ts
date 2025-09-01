@@ -1,29 +1,24 @@
-import request from 'supertest';
-import app from '../../src/app';
-import * as aiService from '../../src/services/aiService';
+import { generateResponse } from "../../src/services/aiService";
+import dotenv from "dotenv"
+dotenv.config();
 
-jest.mock('../../services/aiService');
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("A variável de ambiente GEMINI_API_KEY não está definida.");
+}
 
-describe('Integração das Rotas de IA', () => {
-  it('POST /api/chat deve retornar uma resposta do serviço de IA', async () => {
-    const mockReply = 'Esta é uma resposta simulada.';
-    (aiService.generateResponse as jest.Mock).mockResolvedValue(mockReply);
-    
-    const response = await request(app)
-      .post('/api/chat')
-      .send({ message: 'Olá, IA' });
+jest.mock("../../src/services/geminiClient", () => ({
+  gemini: {
+    generateContent: jest.fn().mockResolvedValue("Resposta simulada da IA")
+  }
+}));
 
-    expect(response.status).toBe(200);
-    expect(response.body.reply).toBe(mockReply);
-    expect(aiService.generateResponse).toHaveBeenCalledWith('Olá, IA');
+describe("Testes de Unidade do Serviço de IA", () => {
+  it("deve gerar uma resposta da IA", async () => {
+    const response = await generateResponse("Qual é a capital do Brasil?");
+    expect(response).toBe("Resposta simulada da IA");
   });
-  
-  it('POST /api/chat deve retornar 400 se a mensagem estiver faltando', async () => {
-    const response = await request(app)
-      .post('/api/chat')
-      .send({});
-      
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("A chave 'message' é obrigatória no corpo da requisição.");
+
+  it("deve retornar erro se a mensagem estiver vazia", async () => {
+    await expect(generateResponse("")).rejects.toThrow();
   });
 });

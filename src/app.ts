@@ -5,6 +5,7 @@ import 'dotenv/config';
 import productRoutes from './routes/productRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import purchaseRoutes from './routes/purchaseRoutes';
+import aiRoutes from "./routes/aiRoutes";
 
 import { aiResponse, chat } from './controller/aiController';
 import { startSync } from './controller/syncController';
@@ -18,6 +19,7 @@ app.use('/api', productRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', purchaseRoutes);
 app.use('/api', productRoutes);
+app.use("/api", aiRoutes);
 
 app.post('/api/ai', aiResponse);
 app.post('/api/chat', chat);

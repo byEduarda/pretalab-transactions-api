@@ -3,7 +3,7 @@ import { syncProducts } from '../../src/externalAPI/finshoppingService';
 import ProductModel from '../../src/database/mongooseProduct';
 
 jest.mock('axios');
-jest.mock('../../../database/mongooseProduct');
+jest.mock('../../src/database/mongooseProduct');
 
 describe('Testes de Unidade do Serviço de Finshopping', () => {
   afterEach(() => {

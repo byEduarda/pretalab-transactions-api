@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { configDotenv } from "dotenv";
-configDotenv
+import dotenv from "dotenv"
+dotenv.config();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -11,6 +11,8 @@ if (!GEMINI_API_KEY) {
 const geminiAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const generateResponse = async (prompt: string) => {
+  if (!prompt) throw new Error("Mensagem é obrigatória");
+
   try {
     const model = geminiAI.getGenerativeModel({
       model: "gemini-1.5-flash",

@@ -13,6 +13,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["**/*.ts", "jest.config.js", "tests/jest.setup.js"],
+  "include": ["**/*.ts", "jest.config.js", "jest.setup.js"],
   "exclude": ["node_modules", "dist", "tests/**/*"]
 }

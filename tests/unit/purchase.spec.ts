@@ -1,7 +1,7 @@
 import * as purchaseService from '../../src/services/purchaseService';
 import PurchaseModel from '../../src/database/mongoosePurchases';
 
-jest.mock('../../../database/mongoosePurchase');
+jest.mock('../../src/database/mongoosePurchases');
 
 describe('Testes de Unidade do Serviço de Compras', () => {
   afterEach(() => {

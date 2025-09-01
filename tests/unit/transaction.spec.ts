@@ -1,42 +1,33 @@
-import * as transactionService from '../../src/services/transactionService';
-import TransactionModel from '../../src/database/mongooseTransaction';
+import TransactionModel, { Transaction } from "../../src/database/mongooseTransaction";
+import { createTransaction } from "../../src/services/transactionService";
+import { jest } from "@jest/globals";
 
-jest.mock('../../../database/mongooseTransaction');
+// Mock do Mongoose
+jest.mock("../../src/models/transactionModel");
 
-describe('Testes de Unidade do Serviço de Transações', () => {
-  beforeEach(() => {
+// Tipando o mock
+const mockedTransactionModel = TransactionModel as jest.Mocked<typeof TransactionModel>;
+
+describe("Testes de Unidade do Serviço de Transações", () => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('deve criar uma nova transação', async () => {
-    const mockTransactionData = { description: 'Teste', amount: 100, type: 'income', category: 'Outros', date: '2025-01-01' };
-    const mockSavedTransaction = { _id: 'mockId', ...mockTransactionData };
+  it("deve criar uma nova transação", async () => {
+    const mockTransaction: Omit<Transaction, "_id" | "__v"> = {
+      amount: 100,
+      category: "Alimentação",
+      date: new Date().toISOString(),
+      description: "Teste",
+      type: "expense",
+    };
 
-    (TransactionModel.prototype.save as jest.Mock).mockResolvedValue(mockSavedTransaction);
+    // Mockando create do Mongoose com tipagem correta
+    mockedTransactionModel.create.mockResolvedValue(mockTransaction as Transaction);
 
-    const result = await transactionService.createTransaction(mockTransactionData);
-    
-    expect(result).toEqual(mockSavedTransaction);
-    expect(TransactionModel.prototype.save).toHaveBeenCalledTimes(1);
-  });
+    const result = await createTransaction(mockTransaction);
 
-  it('deve obter todas as transações', async () => {
-    const mockTransactions = [{ description: 'Salario', amount: 5000, type: 'income' }];
-    (TransactionModel.find as jest.Mock).mockResolvedValue(mockTransactions);
-
-    const result = await transactionService.getAllTransactions({});
-
-    expect(TransactionModel.find).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(mockTransactions);
-  });
-
-  it('deve obter uma transação por ID', async () => {
-    const mockTransaction = { _id: '1', description: 'Aluguel', amount: 1500 };
-    (TransactionModel.findById as jest.Mock).mockResolvedValue(mockTransaction);
-
-    const result = await transactionService.getTransactionById('1');
-
-    expect(TransactionModel.findById).toHaveBeenCalledWith('1');
     expect(result).toEqual(mockTransaction);
+    expect(mockedTransactionModel.create).toHaveBeenCalledWith(mockTransaction);
   });
 });

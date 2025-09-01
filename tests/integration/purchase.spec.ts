@@ -1,41 +1,30 @@
-import request from 'supertest';
-import app from '../../src/app';
-import { connectToMongo, disconnectFromMongo, dropDatabase } from '../../tests/jest.setup';
-import PurchaseModel from '../../src/database/mongoosePurchases';
+import request from "supertest";
+import mongoose from "mongoose";
+import app from "../../src/app";
+import PurchaseModel from "../../src/database/mongoosePurchases";
 
-describe('Integração das Rotas de Compras', () => {
-  beforeAll(async () => {
-    await connectToMongo();
+describe("Integração das Rotas de Compras", () => {
+  it("deve criar uma nova compra com sucesso", async () => {
+    const purchaseData = {
+      items: [{ productId: new mongoose.Types.ObjectId(), quantity: 1 }],
+      total: 100
+    };
+
+    const res = await request(app).post("/api/purchases").send(purchaseData);
+    expect(res.status).toBe(201);
+    expect(res.body.total).toBe(100);
+
+    const saved = await PurchaseModel.findById(res.body._id);
+    expect(saved).not.toBeNull();
   });
 
-  afterEach(async () => {
-    await dropDatabase();
-  });
+  it("deve retornar 400 se o total da compra exceder o limite", async () => {
+    const purchaseData = {
+      items: [{ productId: new mongoose.Types.ObjectId(), quantity: 1 }],
+      total: 1000000
+    };
 
-  afterAll(async () => {
-    await disconnectFromMongo();
-  });
-
-  it('POST /api/checkout deve criar uma nova compra', async () => {
-    const cart = [{ productId: '1', quantity: 1, name: 'Produto', price: 100 }];
-    const total = 100;
-    const response = await request(app)
-      .post('/api/checkout')
-      .send({ cart, total });
-
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('_id');
-    expect(response.body).toMatchObject({ total: 100 });
-    expect(response.body.items[0]).toMatchObject({ name: 'Produto' });
-  });
-
-  it('POST /api/checkout deve retornar 400 se o total exceder o limite', async () => {
-    const total = 20001;
-    const response = await request(app)
-      .post('/api/checkout')
-      .send({ cart: [], total });
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe('O valor total da compra excede o limite de R$20.000.');
+    const res = await request(app).post("/api/purchases").send(purchaseData);
+    expect(res.status).toBe(400);
   });
 });

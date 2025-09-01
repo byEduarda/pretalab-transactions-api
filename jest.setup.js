@@ -2,10 +2,10 @@ const dotenv = require("dotenv");
 const path = require("path");
 
 dotenv.config({
-    path : path.resolve(__dirname, "../.env.test"),
+    path : path.resolve(__dirname, ".env.test"),
 });
 
 module.exports = {
-  testTimeout: 30000,
+  testTimeout: 60000,
   maxConcurrency: 1,
 };

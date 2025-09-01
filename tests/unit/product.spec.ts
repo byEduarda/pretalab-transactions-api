@@ -2,29 +2,32 @@ import * as productService from '../../src/services/productService';
 import { products as mockProducts } from '../../src/models/productModel';
 import MongooseProductModel from '../../src/database/mongooseProduct';
 
-jest.mock('../../../database/mongooseProduct');
+jest.mock('../../src/database/mongooseProduct');
 
-describe('Testes de Unidade do Serviço de Produtos', () => {
+describe('Serviço de Produtos - Testes de Unidade', () => {
+  const mockFind = MongooseProductModel.find as jest.Mock;
+  const mockFindById = MongooseProductModel.findById as jest.Mock;
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('deve obter todos os produtos', async () => {
-    (MongooseProductModel.find as jest.Mock).mockResolvedValue(mockProducts);
+  it('deve retornar todos os produtos', async () => {
+    mockFind.mockResolvedValue(mockProducts);
 
-    const products = await productService.getAllProducts();
+    const result = await productService.getAllProducts();
 
-    expect(products).toEqual(mockProducts);
-    expect(MongooseProductModel.find).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(mockProducts);
+    expect(mockFind).toHaveBeenCalledTimes(1);
   });
 
-  it('deve obter um produto por ID', async () => {
+  it('deve retornar um produto pelo ID', async () => {
     const mockProduct = mockProducts[0];
-    (MongooseProductModel.findById as jest.Mock).mockResolvedValue(mockProduct);
+    mockFindById.mockResolvedValue(mockProduct);
 
-    const product = await productService.getProductById('1');
+    const result = await productService.getProductById('1');
 
-    expect(product).toEqual(mockProduct);
-    expect(MongooseProductModel.findById).toHaveBeenCalledWith('1');
+    expect(result).toEqual(mockProduct);
+    expect(mockFindById).toHaveBeenCalledWith('1');
   });
 });

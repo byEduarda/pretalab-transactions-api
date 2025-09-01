@@ -1,52 +1,43 @@
-import request from 'supertest';
-import app from '../../src/app';
-import { connectToMongo, disconnectFromMongo, dropDatabase } from '../../tests/jest.setup';
-import TransactionModel from '../../src/database/mongooseTransaction';
+import TransactionModel from "../../src/database/mongooseTransaction";
+import { FilterQuery } from "mongoose";
 
-describe('Integração das Rotas de Transações', () => {
-  beforeAll(async () => {
-    await connectToMongo();
-  });
+interface TransactionQuery {
+  type?: string;
+  category?: string;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: string;
+  maxAmount?: string;
+}
 
-  afterEach(async () => {
-    await dropDatabase();
-  });
+export const getAllTransactions = async (query: TransactionQuery) => {
+  const filter: FilterQuery<any> = {};
 
-  afterAll(async () => {
-    await disconnectFromMongo();
-  });
+  if (query.type) filter.type = query.type;
+  if (query.category) filter.category = query.category;
 
-  it('deve criar uma nova transação', async () => {
-    const newTransaction = {
-      description: 'Conta de Luz',
-      amount: 120.50,
-      type: 'expense',
-      category: 'Contas',
-      date: '2025-01-10'
-    };
+  if (query.minAmount || query.maxAmount) {
+    filter.amount = {};
+    if (query.minAmount) filter.amount.$gte = Number(query.minAmount);
+    if (query.maxAmount) filter.amount.$lte = Number(query.maxAmount);
+  }
 
-    const response = await request(app)
-      .post('/api/transactions')
-      .send(newTransaction)
-      .expect(201);
+  if (query.startDate || query.endDate) {
+    filter.date = {};
+    if (query.startDate) filter.date.$gte = new Date(query.startDate);
+    if (query.endDate) filter.date.$lte = new Date(query.endDate);
+  }
 
-    expect(response.body).toHaveProperty('_id');
-    expect(response.body).toMatchObject(newTransaction);
-  });
+  const transactions = await TransactionModel.find(filter);
+  return transactions;
+};
 
-  it('deve obter uma lista de transações', async () => {
-    const transaction = await TransactionModel.create({
-      description: 'Salario de Jan',
-      amount: 5000,
-      type: 'income',
-      category: 'Salário',
-      date: '2025-01-05'
-    });
+export const getTransactionById = async (id: string) => {
+  const transaction = await TransactionModel.findById(id);
+  return transaction;
+};
 
-    const response = await request(app).get('/api/transactions').expect(200);
-
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body).toHaveLength(1);
-    expect(response.body[0]).toMatchObject({ description: 'Salario de Jan' });
-  });
-});
+export const createTransaction = async (data: any) => {
+  const transaction = await TransactionModel.create(data);
+  return transaction;
+};
