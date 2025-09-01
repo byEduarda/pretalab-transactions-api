@@ -1,48 +1,83 @@
-import { TransactionService, TransactionInput } from "../../src/services/transactionService";
-import { Transaction } from "../../src/database/mongooseTransaction";
+import * as transactionService from "../../src/services/transactionService";
+import { transactions, Transaction } from "../../src/models/transactionModel";
 
-jest.mock("../../src/database/mongooseTransaction");
-
-describe("TransactionService - Unitário", () => {
+describe("transactionService", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    transactions.length = 0;
+    transactions.push(
+      {
+        id: "1",
+        date: "2024-07-15T10:00:00Z",
+        description: "Salário de Julho",
+        amount: 5000,
+        type: "income",
+        category: "Salário",
+      },
+      {
+        id: "2",
+        date: "2024-07-15T12:30:00Z",
+        description: "Aluguel",
+        amount: 1500,
+        type: "expense",
+        category: "Moradia",
+      }
+    );
   });
 
-  it("deve buscar todas as transações", async () => {
-    const mockData = [
-      { id: "1", description: "Salário", amount: 5000, type: "income", category: "Salário", date: new Date() },
-      { id: "2", description: "Aluguel", amount: 1500, type: "expense", category: "Moradia", date: new Date() }
-    ];
+  it("deve retornar todas as transações", () => {
+    const result = transactionService.getAllTransactions();
+    expect(result).toHaveLength(2);
+  });
 
-    (Transaction.find as jest.Mock).mockReturnValue({
-      sort: jest.fn().mockResolvedValue(mockData)
+  it("deve filtrar transações por tipo", () => {
+    const result = transactionService.getAllTransactions({ type: "income" });
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe("income");
+  });
+
+  it("deve filtrar transações por categoria", () => {
+    const result = transactionService.getAllTransactions({ category: "Moradia" });
+    expect(result).toHaveLength(1);
+    expect(result[0].category).toBe("Moradia");
+  });
+
+  it("deve filtrar transações por intervalo de datas", () => {
+    const result = transactionService.getAllTransactions({
+      startDate: "2024-07-15T11:00:00Z",
+      endDate: "2024-07-15T13:00:00Z",
     });
-
-    const result = await TransactionService.getTransactions({});
-    expect(result).toMatchObject(mockData);
+    expect(result).toHaveLength(1);
+    expect(result[0].description).toBe("Aluguel");
   });
 
-  it("deve buscar transação por id", async () => {
-    const mockData = { id: "1", description: "Salário", amount: 5000, type: "income", category: "Salário", date: new Date() };
-    (Transaction.findById as jest.Mock).mockResolvedValue(mockData);
-
-    const result = await TransactionService.getTransactionById("1");
-    expect(result).toMatchObject(mockData);
+  it("deve filtrar transações por valores mínimos e máximos", () => {
+    const result = transactionService.getAllTransactions({
+      minAmount: 2000,
+      maxAmount: 6000,
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].description).toBe("Salário de Julho");
   });
 
-  it("deve criar transação", async () => {
-    const input: TransactionInput = {
-      description: "Conta de Internet",
-      amount: 99.9,
+  it("deve buscar transação por ID", () => {
+    const result = transactionService.getTransactionById("1");
+    expect(result).toBeDefined();
+    expect(result?.id).toBe("1");
+  });
+
+  it("deve criar uma nova transação", () => {
+    const newTransaction: Transaction = {
+      id: "3",
+      date: "2024-07-20T09:00:00Z",
+      description: "Compra Mercado",
+      amount: 300,
       type: "expense",
-      category: "Contas",
-      date: new Date().toISOString(),
+      category: "Alimentação",
     };
 
-    const savedData = { id: "11", ...input };
-    (Transaction.prototype.save as jest.Mock).mockResolvedValue(savedData);
+    const saved = transactionService.createTransaction(newTransaction);
 
-    const result = await TransactionService.createTransaction(input);
-    expect(result).toMatchObject(savedData);
+    expect(saved).toEqual(newTransaction);
+    expect(transactions).toHaveLength(3);
   });
 });

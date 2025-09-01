@@ -2,34 +2,39 @@ import request from "supertest";
 import app from "../../src/app";
 
 describe("Integration: Checkout", () => {
-
-  it("POST /checkout deve criar nova compra com sucesso", async () => {
+  it("POST /api/checkout deve criar nova compra com sucesso", async () => {
     const newPurchase = {
-      items: [
-        { productId: "1", quantity: 1, price: 7500 },
-        { productId: "2", quantity: 2, price: 350 },
+      cart: [
+        { productId: "1", quantity: 1 },
+        { productId: "2", quantity: 2 },
       ],
+      total: 8200,
     };
 
-    const res = await request(app).post("/checkout").send(newPurchase);
+    const res = await request(app).post("/api/checkout").send(newPurchase);
 
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      items: newPurchase.items,
-      total: 8200, 
+      message: "Compra processada com sucesso!",
+      purchase: {
+        cart: newPurchase.cart,
+        total: newPurchase.total,
+      },
     });
-    expect(res.body).toHaveProperty("id");
-    expect(res.body).toHaveProperty("date");
+    expect(res.body.purchase.id).toBeDefined();
+    expect(res.body.purchase.date).toBeDefined();
   });
 
-  it("POST /checkout deve retornar 400 se o total exceder 20000", async () => {
+  it("POST /api/checkout deve retornar 400 se total > 20000", async () => {
     const newPurchase = {
-      items: [
-        { productId: "1", quantity: 3, price: 7500 }, 
+      cart: [
+        { productId: "1", quantity: 3 },
+        { productId: "2", quantity: 2 },
       ],
+      total: 25000,
     };
 
-    const res = await request(app).post("/checkout").send(newPurchase);
+    const res = await request(app).post("/api/checkout").send(newPurchase);
 
     expect(res.status).toBe(400);
     expect(res.body).toMatchObject({
@@ -37,4 +42,33 @@ describe("Integration: Checkout", () => {
     });
   });
 
+  it("POST /api/checkout deve retornar 400 se dados inválidos", async () => {
+    const newPurchase = {
+      cart: [
+        { productId: "1", quantity: 0 },
+      ],
+      total: 0,
+    };
+
+    const res = await request(app).post("/api/checkout").send(newPurchase);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({
+      message: "Dados da compra inválidos.",
+    });
+  });
+
+  it("POST /api/checkout deve retornar 400 se cart vazio", async () => {
+    const newPurchase = {
+      cart: [],
+      total: 1000,
+    };
+
+    const res = await request(app).post("/api/checkout").send(newPurchase);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({
+      message: "Dados da compra inválidos.",
+    });
+  });
 });

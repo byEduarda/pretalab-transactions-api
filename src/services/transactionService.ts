@@ -1,4 +1,4 @@
-import TransactionModel from '../models/transactionModel';
+import TransactionModel from '../database/mongooseTransaction';
 
 interface TransactionQuery {
   type?: string;
