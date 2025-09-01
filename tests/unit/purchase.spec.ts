@@ -1,51 +1,32 @@
-import { Request, Response } from "express";
-import * as purchaseController from "../../src/controller/purchaseController";
-import * as purchaseService from "../../src/services/purchaseService";
+import * as purchaseService from '../../src/services/purchaseService';
+import PurchaseModel from '../../src/database/mongoosePurchases';
 
-jest.mock("../../src/services/purchaseService");
+jest.mock('../../../database/mongoosePurchase');
 
-describe("Purchase Controller Unit Tests", () => {
-  let req: Partial<Request>;
-  let res: Partial<Response>;
-  let statusMock: jest.Mock;
-  let jsonMock: jest.Mock;
-
-  beforeEach(() => {
-    statusMock = jest.fn().mockReturnThis();
-    jsonMock = jest.fn();
-    res = { status: statusMock, json: jsonMock };
-    req = {};
+describe('Testes de Unidade do Serviço de Compras', () => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("getAllPurchases deve retornar todas as compras", () => {
-    const fakePurchases = [{ id: "1", total: 100 }];
-    (purchaseService.getAllPurchases as jest.Mock).mockReturnValue(fakePurchases);
+  it('deve criar uma nova compra', async () => {
+    const mockPurchaseData = { cart: [], total: 100 };
+    const mockSavedPurchase = { _id: 'mockId', ...mockPurchaseData };
 
-    purchaseController.getAllPurchases(req as Request, res as Response);
+    (PurchaseModel.prototype.save as jest.Mock).mockResolvedValue(mockSavedPurchase);
 
-    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
-      .toMatchObject({ status: 200, json: { purchases: fakePurchases } });
+    const result = await purchaseService.createPurchase(mockPurchaseData.cart, mockPurchaseData.total);
+
+    expect(result).toEqual(mockSavedPurchase);
+    expect(PurchaseModel.prototype.save).toHaveBeenCalledTimes(1);
   });
 
-  it("getPurchaseById deve retornar a compra quando encontrada", () => {
-    const fakePurchase = { id: "1", total: 100 };
-    req.params = { id: "1" };
-    (purchaseService.getPurchaseById as jest.Mock).mockReturnValue(fakePurchase);
+  it('deve obter todas as compras ordenadas por data descendente', async () => {
+    const mockPurchases = [{ total: 200, date: '2025-01-02' }, { total: 100, date: '2025-01-01' }];
+    (PurchaseModel.find as jest.Mock).mockReturnValue({ sort: jest.fn().mockResolvedValue(mockPurchases) });
 
-    purchaseController.getPurchaseById(req as Request, res as Response);
+    const purchases = await purchaseService.getAllPurchases();
 
-    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
-      .toMatchObject({ status: 200, json: { purchase: fakePurchase } });
-  });
-
-  it("getPurchaseById deve retornar 404 quando compra não encontrada", () => {
-    req.params = { id: "999" };
-    (purchaseService.getPurchaseById as jest.Mock).mockReturnValue(undefined);
-
-    purchaseController.getPurchaseById(req as Request, res as Response);
-
-    expect({ status: statusMock.mock.calls[0][0], json: jsonMock.mock.calls[0][0] })
-      .toMatchObject({ status: 404, json: { message: "Compra não encontrada" } });
+    expect(purchases).toEqual(mockPurchases);
+    expect(PurchaseModel.find).toHaveBeenCalledTimes(1);
   });
 });

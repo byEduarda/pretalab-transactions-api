@@ -1,37 +1,41 @@
-import request from "supertest";
-import app from "../../src/app";
-import { purchases } from "../../src/models/purchaseModel";
+import request from 'supertest';
+import app from '../../src/app';
+import { connectToMongo, disconnectFromMongo, dropDatabase } from '../../tests/jest.setup';
+import PurchaseModel from '../../src/database/mongoosePurchases';
 
-describe("Integration: Purchases", () => {
-  it("GET /purchases deve retornar todas as compras", async () => {
-    const res = await request(app).get("/purchases");
-    expect(res.status).toBe(200);
-    expect(res.body.purchases).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: expect.any(String),
-          total: expect.any(Number),
-          items: expect.any(Array),
-        }),
-      ])
-    );
+describe('Integração das Rotas de Compras', () => {
+  beforeAll(async () => {
+    await connectToMongo();
   });
 
-  it("GET /purchases/:id deve retornar compra específica", async () => {
-    const purchaseExistente = purchases[0];
-
-    const res = await request(app).get(`/purchases/${purchaseExistente.id}`);
-    expect(res.status).toBe(200);
-    expect(res.body.purchase).toMatchObject({
-      id: purchaseExistente.id,
-      total: expect.any(Number),
-      items: expect.any(Array),
-    });
+  afterEach(async () => {
+    await dropDatabase();
   });
 
-  it("GET /purchases/:id deve retornar 404 para compra inexistente", async () => {
-    const res = await request(app).get("/purchases/999");
-    expect(res.status).toBe(404);
-    expect(res.body).toMatchObject({ message: "Compra não encontrada" });
+  afterAll(async () => {
+    await disconnectFromMongo();
+  });
+
+  it('POST /api/checkout deve criar uma nova compra', async () => {
+    const cart = [{ productId: '1', quantity: 1, name: 'Produto', price: 100 }];
+    const total = 100;
+    const response = await request(app)
+      .post('/api/checkout')
+      .send({ cart, total });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('_id');
+    expect(response.body).toMatchObject({ total: 100 });
+    expect(response.body.items[0]).toMatchObject({ name: 'Produto' });
+  });
+
+  it('POST /api/checkout deve retornar 400 se o total exceder o limite', async () => {
+    const total = 20001;
+    const response = await request(app)
+      .post('/api/checkout')
+      .send({ cart: [], total });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('O valor total da compra excede o limite de R$20.000.');
   });
 });

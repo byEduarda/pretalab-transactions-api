@@ -1,19 +1,30 @@
-import { getAllProducts, getProductById } from "../../src/services/productService";
-import { products } from "../../src/models/productModel";
+import * as productService from '../../src/services/productService';
+import { products as mockProducts } from '../../src/models/productModel';
+import MongooseProductModel from '../../src/database/mongooseProduct';
 
-describe("Prodruct Service Unit Tests", () => {
-  it("deve mostrar todos os produtos", async () => {
-    const all = await getAllProducts();
-    expect(all).toMatchObject(products);
+jest.mock('../../../database/mongooseProduct');
+
+describe('Testes de Unidade do Serviço de Produtos', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("deve retornar um produto por id", async () => {
-    const prod = await getProductById("1");
-    expect(prod).toMatchObject({ id: "1", name: "Notebook Gamer Pro", price: 7500 });
+  it('deve obter todos os produtos', async () => {
+    (MongooseProductModel.find as jest.Mock).mockResolvedValue(mockProducts);
+
+    const products = await productService.getAllProducts();
+
+    expect(products).toEqual(mockProducts);
+    expect(MongooseProductModel.find).toHaveBeenCalledTimes(1);
   });
 
-  it("deve retornar nulo para produto inexistente", async () => {
-    const prod = await getProductById("999");
-    expect(prod).toBeNull();
+  it('deve obter um produto por ID', async () => {
+    const mockProduct = mockProducts[0];
+    (MongooseProductModel.findById as jest.Mock).mockResolvedValue(mockProduct);
+
+    const product = await productService.getProductById('1');
+
+    expect(product).toEqual(mockProduct);
+    expect(MongooseProductModel.findById).toHaveBeenCalledWith('1');
   });
 });

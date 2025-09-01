@@ -1,73 +1,52 @@
-import request from "supertest";
-import app from "../../src/app";
-import { transactions } from "../../src/models/transactionModel";
+import request from 'supertest';
+import app from '../../src/app';
+import { connectToMongo, disconnectFromMongo, dropDatabase } from '../../tests/jest.setup';
+import TransactionModel from '../../src/database/mongooseTransaction';
 
-describe("Integration: Transactions API", () => {
-  beforeEach(() => {
-    transactions.length = 0;
-    transactions.push(
-      {
-        id: "1",
-        date: "2024-07-15T10:00:00Z",
-        description: "Salário de Julho",
-        amount: 5000,
-        type: "income",
-        category: "Salário",
-      },
-      {
-        id: "2",
-        date: "2024-07-15T12:30:00Z",
-        description: "Aluguel",
-        amount: 1500,
-        type: "expense",
-        category: "Moradia",
-      }
-    );
+describe('Integração das Rotas de Transações', () => {
+  beforeAll(async () => {
+    await connectToMongo();
   });
 
-  it("GET /transactions deve retornar todas as transações", async () => {
-    const res = await request(app).get("/transactions");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(2);
+  afterEach(async () => {
+    await dropDatabase();
   });
 
-  it("GET /transactions com filtro de tipo deve retornar apenas incomes", async () => {
-    const res = await request(app).get("/transactions?type=income");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(1);
-    expect(res.body[0].type).toBe("income");
+  afterAll(async () => {
+    await disconnectFromMongo();
   });
 
-  it("GET /transactions com filtro de categoria deve retornar apenas Moradia", async () => {
-    const res = await request(app).get("/transactions?category=Moradia");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(1);
-    expect(res.body[0].category).toBe("Moradia");
-  });
-
-  it("GET /transactions/:id deve retornar uma transação existente", async () => {
-    const res = await request(app).get("/transactions/1");
-    expect(res.status).toBe(200);
-    expect(res.body.id).toBe("1");
-  });
-
-  it("GET /transactions/:id deve retornar 404 se não encontrada", async () => {
-    const res = await request(app).get("/transactions/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Transação não encontrada.");
-  });
-
-  it("POST /transactions deve criar uma nova transação", async () => {
+  it('deve criar uma nova transação', async () => {
     const newTransaction = {
-      date: "2024-07-20T09:00:00Z",
-      description: "Mercado",
-      amount: 300,
-      type: "expense",
-      category: "Alimentação",
+      description: 'Conta de Luz',
+      amount: 120.50,
+      type: 'expense',
+      category: 'Contas',
+      date: '2025-01-10'
     };
 
-    const res = await request(app).post("/transactions").send(newTransaction);
-    expect(res.status).toBe(201);
-    expect(res.body).toMatchObject(newTransaction);
+    const response = await request(app)
+      .post('/api/transactions')
+      .send(newTransaction)
+      .expect(201);
+
+    expect(response.body).toHaveProperty('_id');
+    expect(response.body).toMatchObject(newTransaction);
+  });
+
+  it('deve obter uma lista de transações', async () => {
+    const transaction = await TransactionModel.create({
+      description: 'Salario de Jan',
+      amount: 5000,
+      type: 'income',
+      category: 'Salário',
+      date: '2025-01-05'
+    });
+
+    const response = await request(app).get('/api/transactions').expect(200);
+
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0]).toMatchObject({ description: 'Salario de Jan' });
   });
 });
